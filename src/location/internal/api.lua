@@ -7,5 +7,18 @@
     @TODO 
 --]]
 
+local cjson = require "cjson"
+local base64 = require "libbase64"
+local postgresutils = require "commons.postgresutils"
 
-ngx.say("api")
+
+
+local function controller()
+    local base64encode_sql = "c2VsZWN0ICogZnJvbSB0X3NlcnZpY2U7" --select * from t_service;
+    local sql, in_len, out_len = base64.decode(base64encode_sql)
+    ngx.log(ngx.ERR, "--" .. sql .. "--")
+    local res = postgresutils.executeSql("select * from t_service;")
+    ngx.say(cjson.encode(res))
+end
+
+controller()

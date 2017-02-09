@@ -8,3 +8,4 @@
 --]]
 
 
+ngx.exec("/api_internal")
