@@ -136,13 +136,12 @@ static int base64_decode(lua_State *L)
 {
     const char *data = luaL_checkstring(L, 1);
     int data_len = strlen(data);
-    int ret_len = (data_len / 4) * 3 + 1;
+    int ret_len = (data_len / 4) * 3;
     int equal_count = 0;
     char *ret = NULL;
     char *f = NULL;
     int tmp = 0;
     int temp = 0;
-    //char need[3];
     int prepare = 0;
     int i = 0;
     if (*(data + data_len - 1) == '=')
