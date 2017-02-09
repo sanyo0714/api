@@ -14,8 +14,10 @@ local postgresutils = require "commons.postgresutils"
 
 
 local function controller()
-    local base64encode_sql = "c2VsZWN0ICogZnJvbSB0X3NlcnZpY2U7" --select * from t_service;
-    local sql, in_len, out_len = base64.decode(base64encode_sql)
+    local all_args = ngx.ctx.all_args
+    ngx.log(ngx.ERR, cjson.encode(all_args))
+    --local base64encode_sql = "c2VsZWN0ICogZnJvbSB0X3NlcnZpY2U7"  select * from t_service;
+    local sql, in_len, out_len = base64.decode(all_args.request_body)
     local res = postgresutils.executeSql(sql, true)
     ngx.say(cjson.encode(res))
 end
