@@ -16,6 +16,7 @@ local read_body = req.read_body
 local get_body_data = req.get_body_data
 local get_body_file = req.get_body_file
 local get_header  = req.get_headers
+local get_uri_args = req.get_uri_args
 
 local _M = {}
 
@@ -39,7 +40,7 @@ function _M.init_all_args()
     all_args["uri"] = util.get_uri(var.request_uri)
     --初始化header信息
     all_args = util.table_merge(all_args, get_header())
-
+    all_args.method = util.split(var.request_uri,"=")[2]
     read_body()
     --根据content_type初始化postbody信息
     local ct = var.content_type
