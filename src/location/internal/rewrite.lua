@@ -40,7 +40,7 @@ function _M.init_all_args()
     all_args["uri"] = util.get_uri(var.request_uri)
     --初始化header信息
     all_args = util.table_merge(all_args, get_header())
-    all_args.method = util.split(var.request_uri,"=")[2]
+    all_args = util.table_merge(all_args, get_uri_args())
     read_body()
     --根据content_type初始化postbody信息
     local ct = var.content_type

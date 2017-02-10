@@ -7,5 +7,4 @@
     @TODO 
 --]]
 
-
-ngx.exec("/api_internal")
+ngx.exec("/api_internal",ngx.req.get_uri_args())
