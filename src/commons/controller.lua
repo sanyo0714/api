@@ -43,10 +43,36 @@ local function intersects(all_args)
     return cjson.encode(res)
 end
 
+--省市县查询
+--test curl "http://192.168.200.100/api.html?method=intersects_district&tablename=geom_data&district=town&pagesize=3&page=3" --data "MzM3"
+local function intersects_district(all_args)
+    --request_body "MzM3"  337
+    local back_result = {}
+    local data, in_len, out_len = base64.decode(all_args.request_body)
+    local sql = string.format("SELECT g.*, st_astext (g.geom) FROM %s g, %s t WHERE ST_Intersects (g.geom, t.geom) AND t.gid = %s  limit %s OFFSET %s;",
+                all_args.tablename, all_args.district, data, all_args.pagesize, all_args.pagesize * (all_args.page - 1))
+    local list_res = postgresutils.executeSql(sql, true)
+
+    sql = string.format("SELECT st_astext (t.geom) FROM %s t WHERE t.gid = %s;", all_args.district, data)
+    local district_res = postgresutils.executeSql(sql, true)
+
+    sql = string.format("SELECT g.*, st_astext (g.geom) FROM %s g, %s t WHERE ST_Intersects (g.geom, t.geom) AND t.gid = %s;",
+        all_args.tablename, all_args.district, data)
+    local count_res = postgresutils.executeSql(sql, true)
+
+    back_result = {
+        ["list_res"] = list_res,
+        ["district_res"] = district_res,
+        ["count_res"] = count_res,
+    }
+    return cjson.encode(back_result)
+end
+
 _M.controller = {
     ["common"] = common,
     ["getarea"] = get_area,
     ["intersects"] = intersects,
+    ["intersects_district"] = intersects_district,
 }
 
 
