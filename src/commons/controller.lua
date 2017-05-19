@@ -34,13 +34,24 @@ local function get_area(all_args)
 end
 
 --获取传进来POLYGON，来匹配区域
---test curl "http://192.168.200.100/api.html?method=intersects&tablename=geom_test" --data "LTgwLjUgNDIuMyAsLTc0LjcgNDIuMyAsLTc0LjcgMzkuNyAsLTgwLjUgMzkuNyAsLTgwLjUgNDIuMw=="
+--test curl "http://192.168.200.100/api.html?method=intersects&tablename=geom_data&pagesize=7&page=3" --data "MTEyLjkzIDQxLjEzICwxMTguMzAgNDEuMTMgLDExOC4zMCAzNi41NiAsMTEyLjkzIDM2LjU2ICwxMTIuOTMgNDEuMTM="
 local function intersects(all_args)
-    --request_body "LTgwLjUgNDIuMyAsLTc0LjcgNDIuMyAsLTc0LjcgMzkuNyAsLTgwLjUgMzkuNyAsLTgwLjUgNDIuMw=="  -80.5 42.3 ,-74.7 42.3 ,-74.7 39.7 ,-80.5 39.7 ,-80.5 42.3
+    --request_body "MTEyLjkzIDQxLjEzICwxMTguMzAgNDEuMTMgLDExOC4zMCAzNi41NiAsMTEyLjkzIDM2LjU2ICwxMTIuOTMgNDEuMTM="  112.93 41.13 ,118.30 41.13 ,118.30 36.56 ,112.93 36.56 ,112.93 41.13
+    local back_result = {}
     local data, in_len, out_len = base64.decode(all_args.request_body)
-    local sql = string.format("SELECT * FROM %s WHERE ST_Intersects ( geom, 'POLYGON((%s))');", all_args.tablename, data)
-    local res = postgresutils.executeSql(sql, true)
-    return cjson.encode(res)
+    local sql = string.format("select * from %s t where ST_Intersects(t.geom, 'SRID=4326;POLYGON((%s))' :: geometry) limit %s OFFSET %s;",
+        all_args.tablename, data, all_args.pagesize, all_args.pagesize * (all_args.page - 1))
+    local list_res = postgresutils.executeSql(sql, true)
+
+    sql = string.format("select count(1) as cou from %s t where ST_Intersects(t.geom, 'SRID=4326;POLYGON((%s))' :: geometry);",
+        all_args.tablename, data)
+    local count_res = postgresutils.executeSql(sql, true)
+
+    back_result = {
+        ["list_res"] = list_res,
+        ["count_res"] = count_res[1].cou,
+    }
+    return cjson.encode(back_result)
 end
 
 --省市县查询
@@ -62,8 +73,8 @@ local function intersects_district(all_args)
 
     back_result = {
         ["list_res"] = list_res,
-        ["district_res"] = district_res,
-        ["count_res"] = count_res,
+        ["district_res"] = district_res[1].st_astext,
+        ["count_res"] = count_res[1].cou,
     }
     return cjson.encode(back_result)
 end
