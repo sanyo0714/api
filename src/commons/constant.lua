@@ -14,9 +14,9 @@ _M["postgresql"] = {
     ["default"] = {
         ["host"] = "127.0.0.1",
         ["port"] = 5432,
-        ["database"] = "postgres",
-        ["user"] = "postgres",
-        ["password"] = "postgres",
+        ["database"] = "gpdb",
+        ["user"] = "gpadmin",
+        ["password"] = "gpadmin",
     }
 }
 
